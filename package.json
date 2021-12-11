@@ -8,6 +8,7 @@
    "scripts": {
       "prebuild": "rimraf dist",
       "build": "nest build",
+      "dev": "ts-node-dev src/main.ts",
       "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
       "start": "ts-node src/main.ts",
       "start:dev": "nest start --watch",
@@ -69,6 +70,7 @@
       "ts-jest": "^26.5.4",
       "ts-loader": "^8.0.18",
       "ts-node": "^9.1.1",
+      "ts-node-dev": "^1.1.8",
       "tsconfig-paths": "^3.9.0",
       "typescript": "^4.2.3"
    },
