@@ -23,7 +23,7 @@ export class Init1624479473228 implements MigrationInterface {
         columns: [
           {
             name: "id",
-            type: "int4",
+            type: "varchar",
             isPrimary: true,
             isGenerated: true,
             generationStrategy: "increment",

@@ -5,31 +5,31 @@ import {
   UnauthorizedException,
   HttpException,
   HttpStatus,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import bcrypt from 'bcryptjs';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import bcrypt from "bcryptjs";
 
-import { Users } from '../models/Users';
+import { Users } from "../models/Users";
 
 import {
   UserLoginDto,
   UserCreateDto,
   UserUpdateDto,
-} from '../validators/user.dto';
+} from "../validators/user.dto";
 import {
   generateTokens,
   encryptPassword,
   getPagination,
   processOrderBy,
-} from '../helpers';
-import { Console } from 'console';
+} from "../helpers";
+import { Console } from "console";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(Users)
-    private usersRepository: Repository<Users>,
+    private usersRepository: Repository<Users>
   ) {}
 
   async index(queryParams: any) {
@@ -37,9 +37,9 @@ export class UserService {
       getPagination(queryParams);
 
     const builder = this.usersRepository
-      .createQueryBuilder('u')
-      .leftJoin('u.role', 'r')
-      .select(['u', 'r']);
+      .createQueryBuilder("u")
+      .leftJoin("u.role", "r")
+      .select(["u", "r"]);
 
     const usersCount = await builder
       .skip(page)
@@ -60,7 +60,7 @@ export class UserService {
     try {
       return this.usersRepository.findOne({
         where: { id },
-        relations: ['role'],
+        relations: ["role"],
       });
     } catch (error) {
       throw new NotFoundException(error.message);
@@ -71,7 +71,7 @@ export class UserService {
     try {
       return this.usersRepository.findOne({
         where: { id },
-        relations: ['role'],
+        relations: ["role"],
       });
     } catch (error) {
       throw new NotFoundException(error.message);
@@ -81,22 +81,22 @@ export class UserService {
   async login(body: UserLoginDto) {
     try {
       const user = await this.usersRepository
-        .createQueryBuilder('u')
-        .leftJoin('u.role', 'r')
+        .createQueryBuilder("u")
+        .leftJoin("u.role", "r")
         .where(`u.email = :email`, {
           email: body.email,
         })
-        .select(['u', 'r', 'u.password'])
+        .select(["u", "r", "u.password"])
         .getOne();
 
       if (!user) {
-        throw new UnauthorizedException('Unauthorized, User not found');
+        throw new UnauthorizedException("Unauthorized, User not found");
       }
 
       const isValid = await bcrypt.compare(body.password, user.password);
 
       if (!isValid) {
-        throw new UnauthorizedException('Unauthorized, password is invalid');
+        throw new UnauthorizedException("Unauthorized, password is invalid");
       }
 
       delete user.password;

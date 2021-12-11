@@ -1,12 +1,12 @@
-import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { ValidationPipe } from "@nestjs/common";
 
-import { AppModule } from './app.module';
+import { AppModule } from "./app.module";
 
-import { graylogMiddleware } from './middlewares/graylog.middleware';
-import { GrayLogger } from './helpers/graylog';
-import { NODE_ENV, HTTP_PORT, ACTIVATE_GRAYLOG } from './config';
+import { graylogMiddleware } from "./middlewares/graylog.middleware";
+import { GrayLogger } from "./helpers/graylog";
+import { NODE_ENV, HTTP_PORT, ACTIVATE_GRAYLOG } from "./config";
 
 const grayLogger = new GrayLogger();
 
@@ -25,8 +25,8 @@ async function bootstrap() {
   // app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(HTTP_PORT);
-  console.log('-------------------------------------------------------------');
+  console.log("-------------------------------------------------------------");
   console.log(`🚀 App starting in ${NODE_ENV} mode on port ${HTTP_PORT}!! 🚀`);
-  console.log('-------------------------------------------------------------');
+  console.log("-------------------------------------------------------------");
 }
 bootstrap();
