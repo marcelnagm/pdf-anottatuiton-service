@@ -11,20 +11,20 @@ import { Annotations } from "./Annotations";
 
 @Entity("pdf_annotations", { schema: "public" })
 export class PdfAnnotations {
-  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-  @Column("integer")
-  teacher_id: number;
+  @Column("uuid")
+  teacher_id: string;
 
-  @Column("integer")
-  class_id: number;
+  @Column("uuid")
+  class_id: string;
 
-  @Column("integer")
-  pdf_id: number;
+  @Column("uuid")
+  pdf_id: string;
 
-  @Column("integer")
-  created_by_id: number;
+  @Column("uuid")
+  created_by_id: string;
 
   @CreateDateColumn()
   created_at: Date;
@@ -32,6 +32,10 @@ export class PdfAnnotations {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => Annotations, (annotations) => annotations.pdf_annotation_id)
+  @OneToMany(
+    () => Annotations,
+    (annotations) => annotations.pdf_annotation_id,
+    { cascade: true }
+  )
   annotations: Annotations[];
 }

@@ -17,6 +17,8 @@ export class Init1624479473228 implements MigrationInterface {
     END;
     $$ language 'plpgsql';`);
 
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+
     await queryRunner.createTable(
       new Table({
         name: "pdf_annotations",
@@ -25,29 +27,29 @@ export class Init1624479473228 implements MigrationInterface {
             name: "id",
             type: "varchar",
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: "increment",
+            generationStrategy: "uuid",
+            default: "uuid_generate_v4()",
           },
           {
             name: "teacher_id",
-            type: "int4",
+            type: "varchar",
             isNullable: true,
           },
           {
             name: "pdf_id",
-            type: "int4",
+            type: "varchar",
             isNullable: false,
           },
           {
             name: "created_by_id",
-            type: "int4",
-            isNullable: true,
+            type: "varchar",
+            isNullable: false,
           },
 
           {
             name: "class_id",
-            type: "int4",
-            isNullable: true,
+            type: "varchar",
+            isNullable: false,
           },
           {
             name: "created_at",
@@ -71,10 +73,10 @@ export class Init1624479473228 implements MigrationInterface {
         columns: [
           {
             name: "id",
-            type: "int4",
+            type: "varchar",
             isPrimary: true,
-            isGenerated: true,
-            generationStrategy: "increment",
+            generationStrategy: "uuid",
+            default: "uuid_generate_v4()",
           },
           {
             name: "annotation",
@@ -83,7 +85,7 @@ export class Init1624479473228 implements MigrationInterface {
           },
           {
             name: "pdf_annotation_id",
-            type: "int4",
+            type: "varchar",
           },
           {
             name: "created_at",
