@@ -16,6 +16,7 @@ import { App1Module } from "./modules/app1.module";
 import { HealthModule } from "./modules/health.module";
 import { UserModule } from "./modules/user.module";
 import { AnnotationModule } from "./modules/annotation.module";
+import { PdfAnnotationModule } from "./modules/pdf-annotations.module";
 
 import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { GrayLoggerTypeOrm } from "./helpers/graylog";
@@ -77,6 +78,7 @@ import {
     App1Module,
     UserModule,
     AnnotationModule,
+    PdfAnnotationModule,
   ],
   controllers: [],
   providers: [],
@@ -90,7 +92,7 @@ export class AppModule implements NestModule {
         { path: "/users/signup", method: RequestMethod.POST },
         { path: "/users/login", method: RequestMethod.POST },
         { path: "/annotations", method: RequestMethod.GET },
-        { path: "/users/", method: RequestMethod.GET }
+        { path: "/annotations", method: RequestMethod.POST }
       )
       .forRoutes({ path: "*", method: RequestMethod.ALL });
   }

@@ -13,14 +13,14 @@ import { PdfAnnotations } from "./PdfAnnotations";
 
 @Entity("annotations", { schema: "public" })
 export class Annotations {
-  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column("character varying")
   annotation: string;
 
-  @Column("integer")
-  pdf_annotation_id: number;
+  @Column("character varying")
+  pdf_annotation_id: string;
 
   @CreateDateColumn()
   created_at: Date;

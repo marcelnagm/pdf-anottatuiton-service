@@ -14,17 +14,26 @@ import { ApiTags } from "@nestjs/swagger";
 import { AnnotationService } from "../services/annotation.service";
 
 @ApiTags("# Annotations")
-@Controller("annotations") //Decorator recebe como parametro qual e a url
+@Controller("annotations")
 export class AnnotationsController {
   constructor(private readonly annotationsService: AnnotationService) {}
-
   @Get()
   async index(@Query() query, @Request() req) {
     return {
       message: "Index",
-      object: "users",
+      object: "annotations",
       url: req.url,
       data: await this.annotationsService.index(query),
+    };
+  }
+
+  @Post()
+  async create(@Body() body, @Request() req) {
+    return {
+      message: "Create",
+      object: "annotations",
+      url: req.url,
+      data: await this.annotationsService.create(body),
     };
   }
 }
