@@ -52,23 +52,23 @@ export class AnnotationService {
     try {
       const { annotations, ...pdfAnnotation } = body;
 
-      const pdfAnnotationCreated = await this.pdfAnnotationsRepository.upsert(
-        pdfAnnotation,
-        ["id"]
-      );
+      // const pdfAnnotationCreated = await this.pdfAnnotationsRepository.upsert(
+      //   pdfAnnotation,
+      //   ["id"]
+      // );
 
-      const [generatedMaps] = pdfAnnotationCreated.generatedMaps;
+      // const [generatedMaps] = pdfAnnotationCreated.generatedMaps;
 
-      await this.annotationsRepository.upsert(
-        body.annotations.map((annotation) => ({
-          ...annotation,
-          pdf_annotation_id: generatedMaps?.id,
-        })),
-        ["id"]
-      );
+      // await this.annotationsRepository.upsert(
+      //   body.annotations.map((annotation) => ({
+      //     ...annotation,
+      //     pdf_annotation_id: generatedMaps?.id,
+      //   })),
+      //   ["id"]
+      // );
 
       return this.annotationsRepository.find({
-        pdf_annotation_id: generatedMaps?.id,
+        pdf_annotation_id: "a197badc-4183-43c6-a9ef-70199a16c84d",
       });
     } catch (error) {
       throw new NotFoundException(error.message);
