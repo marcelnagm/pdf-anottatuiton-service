@@ -8,13 +8,14 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
 import { PdfAnnotations } from "./PdfAnnotations";
 
 @Entity("annotations", { schema: "public" })
 export class Annotations {
   @PrimaryGeneratedColumn("uuid")
-  id: string;
+  id?: string;
 
   @Column("character varying")
   annotation: string;
@@ -28,11 +29,7 @@ export class Annotations {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(
-    () => PdfAnnotations,
-    (pdfAnnotations) => pdfAnnotations.annotations,
-    { onDelete: "CASCADE" }
-  )
-  @JoinColumn([{ name: "pdf_annotation_id", referencedColumnName: "id" }])
-  pdfAnnotations: PdfAnnotations;
+  @ManyToOne(() => PdfAnnotations, (pdf) => pdf.annotations)
+  @JoinColumn({ name: "pdf_annotation_id", referencedColumnName: "id" })
+  pdf_annotations: PdfAnnotations;
 }

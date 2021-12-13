@@ -38,7 +38,13 @@ export class PdfAnnotationService {
     private pdfAnnotationsRepository: Repository<PdfAnnotations>
   ) {}
 
-  async index(queryParams: { pdf_id: string }) {
-    return this.pdfAnnotationsRepository.find();
+  async index(queryParams: { pdf_id: string; created_by_id: string }) {
+    return this.pdfAnnotationsRepository.find({
+      relations: ["annotations"],
+      where: {
+        created_by_id: queryParams.created_by_id,
+        pdf_id: queryParams.pdf_id,
+      },
+    });
   }
 }

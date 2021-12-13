@@ -6,6 +6,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from "typeorm";
 import { Annotations } from "./Annotations";
 
@@ -32,10 +34,8 @@ export class PdfAnnotations {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(
-    () => Annotations,
-    (annotations) => annotations.pdf_annotation_id,
-    { cascade: true }
-  )
+  @OneToMany(() => Annotations, (annotation) => annotation.pdf_annotations, {
+    cascade: true,
+  })
   annotations: Annotations[];
 }

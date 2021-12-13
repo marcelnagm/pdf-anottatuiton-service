@@ -40,11 +40,12 @@ export class AnnotationService {
     @InjectRepository(PdfAnnotations)
     private pdfAnnotationsRepository: Repository<PdfAnnotations>
   ) {}
+
   async index(queryParams: { pdf_id: string }) {
     return this.annotationsRepository
       .createQueryBuilder("annotation")
-      .innerJoin("annotation.pdfAnnotations", "pdf")
-      .where("pdf.pdf_id = :pdf_id", { pdf_id: queryParams.pdf_id })
+      .innerJoin("annotation.pdf_annotations", "pdf_annotation")
+      .where("pdf_annotation.pdf_id = :pdf_id", { pdf_id: queryParams.pdf_id })
       .getMany();
   }
 
@@ -52,24 +53,21 @@ export class AnnotationService {
     try {
       const { annotations, ...pdfAnnotation } = body;
 
-      // const pdfAnnotationCreated = await this.pdfAnnotationsRepository.upsert(
-      //   pdfAnnotation,
-      //   ["id"]
-      // );
+      if (!pdfAnnotation.id) {
+        return this.pdfAnnotationsRepository.save({
+          ...pdfAnnotation,
+          annotations,
+        });
+      }
 
-      // const [generatedMaps] = pdfAnnotationCreated.generatedMaps;
+      const annotationsFormatted = annotations.map((annotation) => ({
+        ...annotation,
+        pdf_annotation_id: pdfAnnotation.id,
+      }));
 
-      // await this.annotationsRepository.upsert(
-      //   body.annotations.map((annotation) => ({
-      //     ...annotation,
-      //     pdf_annotation_id: generatedMaps?.id,
-      //   })),
-      //   ["id"]
-      // );
+      await this.annotationsRepository.save(annotationsFormatted);
 
-      return this.annotationsRepository.find({
-        pdf_annotation_id: "a197badc-4183-43c6-a9ef-70199a16c84d",
-      });
+      return { ...pdfAnnotation, annotations: annotationsFormatted };
     } catch (error) {
       throw new NotFoundException(error.message);
     }
