@@ -92,7 +92,8 @@ export class AppModule implements NestModule {
         { path: "/users/signup", method: RequestMethod.POST },
         { path: "/users/login", method: RequestMethod.POST },
         { path: "/annotations", method: RequestMethod.GET },
-        { path: "/annotations", method: RequestMethod.POST }
+        { path: "/annotations", method: RequestMethod.POST },
+        { path: "/pdf-annotations", method: RequestMethod.GET }
       )
       .forRoutes({ path: "*", method: RequestMethod.ALL });
   }

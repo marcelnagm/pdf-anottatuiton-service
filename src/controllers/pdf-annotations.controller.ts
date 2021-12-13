@@ -12,18 +12,20 @@ import {
 import { ApiTags } from "@nestjs/swagger";
 
 import { AnnotationService } from "../services/annotation.service";
+import { PdfAnnotationService } from "../services/pdf-annotation.service";
 
 @ApiTags("# PdfAnnotatons")
 @Controller("pdf-annotations") //Decorator recebe como parametro qual e a url
 export class PdfAnnotationsController {
-  //   constructor(private readonly annotationsService: AnnotationService) {}
-  //   @Get()
-  //   async index(@Query() query, @Request() req) {
-  //     return {
-  //       message: "Index",
-  //       object: "annotations",
-  //       url: req.url,
-  //       data: await this.annotationsService.index(query),
-  //     };
-  //   }
+  constructor(private readonly pdfAnnotationService: PdfAnnotationService) {}
+
+  @Get()
+  async index(@Query() query, @Request() req) {
+    return {
+      message: "Index",
+      object: "pdf_annotations",
+      url: req.url,
+      data: await this.pdfAnnotationService.index(query),
+    };
+  }
 }
