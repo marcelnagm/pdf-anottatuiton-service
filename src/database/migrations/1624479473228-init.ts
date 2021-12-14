@@ -31,23 +31,12 @@ export class Init1624479473228 implements MigrationInterface {
             default: "uuid_generate_v4()",
           },
           {
-            name: "teacher_id",
-            type: "varchar",
-            isNullable: true,
-          },
-          {
             name: "pdf_id",
             type: "varchar",
             isNullable: false,
           },
           {
             name: "created_by_id",
-            type: "varchar",
-            isNullable: false,
-          },
-
-          {
-            name: "class_id",
             type: "varchar",
             isNullable: false,
           },

@@ -17,12 +17,6 @@ export class PdfAnnotations {
   id: string;
 
   @Column("uuid")
-  teacher_id: string;
-
-  @Column("uuid")
-  class_id: string;
-
-  @Column("uuid")
   pdf_id: string;
 
   @Column("uuid")

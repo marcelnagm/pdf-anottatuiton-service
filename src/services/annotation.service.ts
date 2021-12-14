@@ -8,7 +8,6 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import bcrypt from "bcryptjs";
 
 import { Annotations } from "../models/Annotations";
 
@@ -20,15 +19,18 @@ import {
 
 import { AnnotationCreateDto } from "../validators/annotations.dto";
 import { PdfAnnotationCreateDto } from "../validators/pdf-annotations.dto";
+import { v4 as uuidV4 } from "uuid";
 
 import {
   generateTokens,
   encryptPassword,
   getPagination,
-  processOrderBy,
+  getFromCache,
+  setInCache,
+  deleteFromCache,
+  getAnnotationsFromCache,
 } from "../helpers";
 
-import { Console } from "console";
 import { PdfAnnotations } from "../models/PdfAnnotations";
 
 @Injectable()
@@ -53,23 +55,71 @@ export class AnnotationService {
     try {
       const { annotations, ...pdfAnnotation } = body;
 
+      const cacheKey = `${pdfAnnotation.created_by_id}:${pdfAnnotation.pdf_id}`;
+      const response = await getAnnotationsFromCache(cacheKey);
+
+      const createdAt = new Date();
+
+      const formattedAnnotations = {
+        id: uuidV4(),
+        ...annotations[0],
+        ...(pdfAnnotation.id && { pdf_annotation_id: pdfAnnotation.id }),
+      };
+
+      await setInCache(cacheKey, {
+        created_at: createdAt,
+        created_by_id: pdfAnnotation.created_by_id,
+        pdf_id: pdfAnnotation.pdf_id,
+        annotations: [...response.annotations, formattedAnnotations],
+      });
+
+      // adicionar fila aqui
+
       if (!pdfAnnotation.id) {
-        return this.pdfAnnotationsRepository.save({
+        const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
           ...pdfAnnotation,
           annotations,
         });
+
+        return createdPdfAnnotation;
       }
 
-      const annotationsFormatted = annotations.map((annotation) => ({
-        ...annotation,
-        pdf_annotation_id: pdfAnnotation.id,
-      }));
+      const savedAnnotations = await this.annotationsRepository.save(
+        formattedAnnotations
+      );
 
-      await this.annotationsRepository.save(annotationsFormatted);
+      await this.pdfAnnotationsRepository.update(
+        { id: pdfAnnotation.id },
+        { updated_at: new Date() }
+      );
 
-      return { ...pdfAnnotation, annotations: annotationsFormatted };
+      return { ...pdfAnnotation, annotations: savedAnnotations };
     } catch (error) {
       throw new NotFoundException(error.message);
+    }
+  }
+
+  async delete(params: { created_by_id: string; pdf_id: string; id: string }) {
+    const { created_by_id, pdf_id, id } = params;
+
+    try {
+      const cacheKey = `${created_by_id}:${pdf_id}`;
+      const { annotations, ...response } = await getAnnotationsFromCache(
+        cacheKey
+      );
+
+      const newAnnotations = annotations.filter(
+        (annotation: { id: string }) => annotation.id !== id
+      );
+
+      await setInCache(cacheKey, { ...response, annotations: newAnnotations });
+
+      // adicionar fila?
+      await this.annotationsRepository.delete({ id });
+
+      return { message: "Deleted with success" };
+    } catch (error) {
+      throw new BadRequestException(error?.message || error);
     }
   }
 }
