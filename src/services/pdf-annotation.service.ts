@@ -24,7 +24,8 @@ import { PdfAnnotationCreateDto } from "../validators/pdf-annotations.dto";
 import { Console } from "console";
 import { PdfAnnotations } from "../models/PdfAnnotations";
 
-import { getFromCache, setInCache, deleteFromCache } from "../helpers";
+import { getFromCache, setInCache, getAnnotationsFromCache } from "../helpers";
+import moment from "moment";
 
 @Injectable()
 export class PdfAnnotationService {
@@ -36,14 +37,24 @@ export class PdfAnnotationService {
   async index(queryParams: { pdf_id: string; created_by_id: string }) {
     const cacheKey = `${queryParams.created_by_id}:${queryParams.pdf_id}`;
 
-    const response = await getFromCache(cacheKey);
+    const response = await getAnnotationsFromCache(cacheKey);
 
-    return this.pdfAnnotationsRepository.find({
+    const pdfAnnotations = await this.pdfAnnotationsRepository.findOne({
       relations: ["annotations"],
       where: {
         created_by_id: queryParams.created_by_id,
         pdf_id: queryParams.pdf_id,
       },
     });
+
+    const pdfCreatedAtIsNewest = moment(
+      pdfAnnotations.updated_at
+    ).isSameOrAfter(response.created_at);
+
+    if (!pdfCreatedAtIsNewest) {
+      return response;
+    }
+
+    return pdfAnnotations;
   }
 }

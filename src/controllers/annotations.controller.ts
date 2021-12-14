@@ -29,7 +29,6 @@ export class AnnotationsController {
 
   @Post()
   async create(@Body() body, @Request() req) {
-    console.log("entrou");
     return {
       message: "Create",
       object: "annotations",
@@ -40,7 +39,6 @@ export class AnnotationsController {
 
   @Delete(":id/pdf/:pdf_id/users/:created_by_id")
   async delete(@Param() params, @Request() req) {
-    console.log("entrou");
     return {
       message: "Delete",
       object: "annotations",

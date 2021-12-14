@@ -68,6 +68,8 @@ export class AnnotationService {
 
       await setInCache(cacheKey, {
         created_at: createdAt,
+        created_by_id: pdfAnnotation.created_by_id,
+        pdf_id: pdfAnnotation.pdf_id,
         annotations: [...response.annotations, formattedAnnotations],
       });
 
@@ -88,7 +90,7 @@ export class AnnotationService {
 
       await this.pdfAnnotationsRepository.update(
         { id: pdfAnnotation.id },
-        { updated_at: createdAt }
+        { updated_at: new Date() }
       );
 
       return { ...pdfAnnotation, annotations: savedAnnotations };
@@ -110,7 +112,7 @@ export class AnnotationService {
         (annotation: { id: string }) => annotation.id !== id
       );
 
-      await setInCache(cacheKey, { ...response, newAnnotations });
+      await setInCache(cacheKey, { ...response, annotations: newAnnotations });
 
       // adicionar fila?
       await this.annotationsRepository.delete({ id });

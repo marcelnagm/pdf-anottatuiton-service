@@ -5,6 +5,5 @@ export * from "./pagination";
 export * from "./processOrderBy";
 export * from "./auth";
 export * from "./password";
-export * from "./redis-config";
 export * from "./redis";
 export * from "./annotations-cache";
