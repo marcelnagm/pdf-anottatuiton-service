@@ -90,7 +90,14 @@ export class AppModule implements NestModule {
       .exclude(
         { path: "/health", method: RequestMethod.GET },
         { path: "/users/signup", method: RequestMethod.POST },
-        { path: "/users/login", method: RequestMethod.POST }
+        { path: "/users/login", method: RequestMethod.POST },
+        { path: "/annotations", method: RequestMethod.GET },
+        { path: "/annotations", method: RequestMethod.POST },
+        {
+          path: "/annotations/:id/pdf/:pdf_id/users/:created_by_id",
+          method: RequestMethod.DELETE,
+        },
+        { path: "/pdf-annotations", method: RequestMethod.GET }
       )
       .forRoutes({ path: "*", method: RequestMethod.ALL });
   }
