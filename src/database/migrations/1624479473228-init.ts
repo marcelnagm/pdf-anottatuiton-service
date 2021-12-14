@@ -7,28 +7,16 @@ import {
 
 export class Init1624479473228 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
-    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS CITEXT;`);
-
-    await queryRunner.query(`CREATE OR REPLACE FUNCTION update_updated_at_column() 
-    RETURNS TRIGGER AS $$
-    BEGIN 
-      NEW.updated_at = now(); 
-      RETURN NEW; 
-    END;
-    $$ language 'plpgsql';`);
-
-    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
-
     await queryRunner.createTable(
       new Table({
         name: "pdf_annotations",
         columns: [
           {
             name: "id",
-            type: "varchar",
+            type: "int4",
             isPrimary: true,
-            generationStrategy: "uuid",
-            default: "uuid_generate_v4()",
+            isGenerated: true,
+            generationStrategy: "increment",
           },
           {
             name: "pdf_id",
@@ -62,10 +50,10 @@ export class Init1624479473228 implements MigrationInterface {
         columns: [
           {
             name: "id",
-            type: "varchar",
+            type: "int4",
             isPrimary: true,
-            generationStrategy: "uuid",
-            default: "uuid_generate_v4()",
+            isGenerated: true,
+            generationStrategy: "increment",
           },
           {
             name: "annotation",
@@ -74,7 +62,7 @@ export class Init1624479473228 implements MigrationInterface {
           },
           {
             name: "pdf_annotation_id",
-            type: "varchar",
+            type: "int4",
           },
           {
             name: "created_at",
@@ -146,7 +134,6 @@ export class Init1624479473228 implements MigrationInterface {
     );
   }
   public async down(queryRunner: QueryRunner): Promise<any> {
-    await queryRunner.query(`DROP FUNCTION update_updated_at_column CASCADE;`);
     await queryRunner.dropTable("annotations");
     await queryRunner.dropTable("pdf_annotations");
     await queryRunner.dropTable("logs");

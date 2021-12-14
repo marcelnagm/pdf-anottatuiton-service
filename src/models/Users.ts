@@ -19,19 +19,19 @@ export class Users {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("character varying", { name: "name" })
+  @Column("varchar", { name: "name" })
   name: string;
 
-  @Column("character varying", { name: "email", unique: true })
+  @Column("varchar", { name: "email", unique: true })
   email: string;
 
-  @Column("character varying", { name: "role_id" })
+  @Column("varchar", { name: "role_id" })
   role_id: number;
 
-  @Column("character varying", { name: "password", select: false })
+  @Column("varchar", { name: "password", select: false })
   password: string;
 
-  @Column("character varying", {
+  @Column("varchar", {
     name: "password_reset_token",
     nullable: true,
     unique: true,

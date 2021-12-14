@@ -4,20 +4,20 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from 'typeorm';
+} from "typeorm";
 
-@Entity('logs', { schema: 'public' })
+@Entity("logs", { schema: "public" })
 export class Logs {
-  @PrimaryGeneratedColumn({ type: 'integer', name: 'id' })
+  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column('character varying', { name: 'level', nullable: true })
+  @Column("varchar", { name: "level", nullable: true })
   level: string | null;
 
-  @Column('character varying', { name: 'message', nullable: true })
+  @Column("varchar", { name: "message", nullable: true })
   message: string | null;
 
-  @Column('json', { name: 'meta' })
+  @Column("json", { name: "meta" })
   meta: `object`;
 
   @CreateDateColumn()
