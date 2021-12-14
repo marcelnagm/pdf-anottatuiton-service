@@ -61,7 +61,7 @@ export class AnnotationService {
 
       const formattedAnnotations = {
         ...annotations[0],
-        ...(pdfAnnotation.id && { pdf_annotation_id: pdfAnnotation.id }),
+        ...(pdfAnnotation?.id && { pdf_annotation_id: pdfAnnotation.id }),
       };
 
       await setInCache(cacheKey, {
@@ -73,7 +73,7 @@ export class AnnotationService {
 
       // adicionar fila aqui
 
-      if (!pdfAnnotation.id) {
+      if (!pdfAnnotation?.id) {
         const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
           ...pdfAnnotation,
           annotations: [formattedAnnotations],
