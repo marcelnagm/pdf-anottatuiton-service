@@ -19,7 +19,6 @@ import {
 
 import { AnnotationCreateDto } from "../validators/annotations.dto";
 import { PdfAnnotationCreateDto } from "../validators/pdf-annotations.dto";
-import { v4 as uuidV4 } from "uuid";
 
 import {
   generateTokens,
@@ -61,7 +60,6 @@ export class AnnotationService {
       const createdAt = new Date();
 
       const formattedAnnotations = {
-        id: uuidV4(),
         ...annotations[0],
         ...(pdfAnnotation.id && { pdf_annotation_id: pdfAnnotation.id }),
       };
@@ -78,7 +76,7 @@ export class AnnotationService {
       if (!pdfAnnotation.id) {
         const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
           ...pdfAnnotation,
-          annotations,
+          annotations: [formattedAnnotations],
         });
 
         return createdPdfAnnotation;
@@ -93,7 +91,7 @@ export class AnnotationService {
         { updated_at: new Date() }
       );
 
-      return { ...pdfAnnotation, annotations: savedAnnotations };
+      return { ...pdfAnnotation, annotations: [savedAnnotations] };
     } catch (error) {
       throw new NotFoundException(error.message);
     }
