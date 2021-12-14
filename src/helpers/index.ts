@@ -7,3 +7,4 @@ export * from "./auth";
 export * from "./password";
 export * from "./redis-config";
 export * from "./redis";
+export * from "./annotations-cache";

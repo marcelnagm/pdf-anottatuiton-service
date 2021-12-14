@@ -29,11 +29,23 @@ export class AnnotationsController {
 
   @Post()
   async create(@Body() body, @Request() req) {
+    console.log("entrou");
     return {
       message: "Create",
       object: "annotations",
       url: req.url,
       data: await this.annotationsService.create(body),
+    };
+  }
+
+  @Delete(":id/pdf/:pdf_id/users/:created_by_id")
+  async delete(@Param() params, @Request() req) {
+    console.log("entrou");
+    return {
+      message: "Delete",
+      object: "annotations",
+      url: req.url,
+      data: await this.annotationsService.delete(params),
     };
   }
 }

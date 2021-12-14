@@ -21,15 +21,10 @@ import {
 import { AnnotationCreateDto } from "../validators/annotations.dto";
 import { PdfAnnotationCreateDto } from "../validators/pdf-annotations.dto";
 
-import {
-  generateTokens,
-  encryptPassword,
-  getPagination,
-  processOrderBy,
-} from "../helpers";
-
 import { Console } from "console";
 import { PdfAnnotations } from "../models/PdfAnnotations";
+
+import { getFromCache, setInCache, deleteFromCache } from "../helpers";
 
 @Injectable()
 export class PdfAnnotationService {
@@ -39,6 +34,10 @@ export class PdfAnnotationService {
   ) {}
 
   async index(queryParams: { pdf_id: string; created_by_id: string }) {
+    const cacheKey = `${queryParams.created_by_id}:${queryParams.pdf_id}`;
+
+    const response = await getFromCache(cacheKey);
+
     return this.pdfAnnotationsRepository.find({
       relations: ["annotations"],
       where: {
