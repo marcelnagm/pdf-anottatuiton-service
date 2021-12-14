@@ -6,7 +6,7 @@ export const CONFIG = {
 };
 
 //Variaveis do .env
-export const ACCESS_SECRET: string = env("ACCESS_SECRET", "mysupersecret");
+export const JWT_PRIVATE_KEY: string = env("JWT_PRIVATE_KEY", "mysupersecret");
 export const HTTP_PORT: number = env("HTTP_PORT", 3000);
 export const NODE_ENV: string = env("NODE_ENV", "development");
 export const DB_USE: any = env("DB_USE");

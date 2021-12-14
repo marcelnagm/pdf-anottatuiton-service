@@ -3,11 +3,11 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-} from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+} from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-import { ACCESS_SECRET } from '../config';
+import { JWT_PRIVATE_KEY } from "../config";
 
 export class AuthMiddleware implements NestMiddleware {
   private readonly logger = new Logger(AuthMiddleware.name);
@@ -25,7 +25,7 @@ export class AuthMiddleware implements NestMiddleware {
       const resultValidationToken = this.verifyToken(token, method);
 
       if (resultValidationToken) {
-        req['tokenDecoded'] = resultValidationToken;
+        req["tokenDecoded"] = resultValidationToken;
 
         return next();
       }
@@ -33,18 +33,18 @@ export class AuthMiddleware implements NestMiddleware {
       throw new HttpException(
         {
           code: HttpStatus.UNAUTHORIZED,
-          error: 'Unauthorized, please log in again',
+          error: "Unauthorized, please log in again",
         },
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.UNAUTHORIZED
       );
     }
 
     throw new HttpException(
       {
         code: HttpStatus.BAD_REQUEST,
-        error: 'No content authorization in headers',
+        error: "No content authorization in headers",
       },
-      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
     );
   }
 
@@ -52,12 +52,12 @@ export class AuthMiddleware implements NestMiddleware {
     try {
       method = method.toUpperCase();
 
-      const tokenVerified: any = jwt.verify(token, ACCESS_SECRET);
+      const tokenVerified: any = jwt.verify(token, JWT_PRIVATE_KEY);
 
       if (!tokenVerified) {
         throw new HttpException(
-          { code: HttpStatus.UNAUTHORIZED, error: 'Token is invalid' },
-          HttpStatus.UNAUTHORIZED,
+          { code: HttpStatus.UNAUTHORIZED, error: "Token is invalid" },
+          HttpStatus.UNAUTHORIZED
         );
       }
 
@@ -65,21 +65,21 @@ export class AuthMiddleware implements NestMiddleware {
     } catch (error) {
       throw new HttpException(
         { code: HttpStatus.INTERNAL_SERVER_ERROR, error: error.message },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   private getTokenFromAuthorizationHeader(authorization: string) {
-    const [Bearer, token] = authorization.split(' ');
+    const [Bearer, token] = authorization.split(" ");
 
-    if (Bearer !== 'Bearer' || !token) {
+    if (Bearer !== "Bearer" || !token) {
       throw new HttpException(
         {
           code: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: 'Authorization wrong format',
+          error: "Authorization wrong format",
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
 
