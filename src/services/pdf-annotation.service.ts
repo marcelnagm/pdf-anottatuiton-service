@@ -48,7 +48,7 @@ export class PdfAnnotationService {
     });
 
     const pdfCreatedAtIsNewest = moment(
-      pdfAnnotations.updated_at
+      pdfAnnotations?.updated_at
     ).isSameOrAfter(response.created_at);
 
     if (!pdfCreatedAtIsNewest) {

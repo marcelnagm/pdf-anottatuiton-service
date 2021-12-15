@@ -14,10 +14,10 @@ import { PdfAnnotations } from "./PdfAnnotations";
 
 @Entity("annotations", { schema: "public" })
 export class Annotations {
-  @PrimaryGeneratedColumn({ type: "integer", name: "id" })
+  @PrimaryGeneratedColumn("uuid")
   id?: string;
 
-  @Column("varchar")
+  @Column("text")
   annotation: string;
 
   @Column("varchar")
