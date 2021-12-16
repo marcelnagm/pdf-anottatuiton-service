@@ -27,3 +27,5 @@ export const ACTIVATE_GRAYLOG: boolean = eval(env("ACTIVATE_GRAYLOG", false));
 export const REDIS_HOST: string = env("REDIS_HOST", "localhost");
 export const REDIS_PORT: string = env("REDIS_PORT", 6379);
 export const REDIS_PASSWORD: string = env("REDIS_PASSWORD", "");
+
+export const API_URL: string = env("API_URL", "http://localhost:5000");

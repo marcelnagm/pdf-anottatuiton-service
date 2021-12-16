@@ -1,2 +1,2 @@
-export * from './graylog';
-export * from './graylog-typeorm';
+export * from "./graylog";
+export * from "./graylog-typeorm";

@@ -97,7 +97,8 @@ export class AppModule implements NestModule {
           path: "/annotations/:id/pdf/:pdf_id/users/:created_by_id",
           method: RequestMethod.DELETE,
         },
-        { path: "/pdf-annotations", method: RequestMethod.GET }
+        { path: "/pdf-annotations", method: RequestMethod.GET },
+        { path: "/annotations/queue", method: RequestMethod.POST }
       )
       .forRoutes({ path: "*", method: RequestMethod.ALL });
   }

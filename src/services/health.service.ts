@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { CONFIG } from '../config';
+import { Injectable } from "@nestjs/common";
+import { CONFIG } from "../config";
 
 @Injectable()
 export class HealthService {

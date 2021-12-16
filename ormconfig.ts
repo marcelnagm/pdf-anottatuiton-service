@@ -5,6 +5,6 @@ module.exports = {
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE,
-  migrations: ['dist/database/migrations/*{.ts,.js}'],
-  migrationsTableName: 'migrations_typeorm',
+  migrations: ["dist/database/migrations/*{.ts,.js}"],
+  migrationsTableName: "migrations_typeorm",
 };

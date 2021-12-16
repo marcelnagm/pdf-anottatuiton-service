@@ -28,6 +28,8 @@ import {
   setInCache,
   deleteFromCache,
   getAnnotationsFromCache,
+  sendQueueMessage,
+  saveAnnotationAfterQueue,
 } from "../helpers";
 
 import { PdfAnnotations } from "../models/PdfAnnotations";
@@ -71,27 +73,13 @@ export class AnnotationService {
         annotations: [...response.annotations, formattedAnnotations],
       });
 
-      // adicionar fila aqui
-
-      if (!pdfAnnotation?.id) {
-        const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
-          ...pdfAnnotation,
-          annotations: [formattedAnnotations],
-        });
-
-        return createdPdfAnnotation;
-      }
-
-      const savedAnnotations = await this.annotationsRepository.save(
+      const result = await sendQueueMessage(
+        pdfAnnotation.pdf_id,
+        pdfAnnotation.created_by_id,
         formattedAnnotations
       );
 
-      await this.pdfAnnotationsRepository.update(
-        { id: pdfAnnotation.id },
-        { updated_at: new Date() }
-      );
-
-      return { ...pdfAnnotation, annotations: [savedAnnotations] };
+      return result;
     } catch (error) {
       throw new NotFoundException(error.message);
     }
@@ -119,5 +107,28 @@ export class AnnotationService {
     } catch (error) {
       throw new BadRequestException(error?.message || error);
     }
+  }
+
+  async saveAnnotations(body: any, token?: string) {
+    const { id, pdf_id, created_by_id, formattedAnnotations } = body;
+
+    const annotation = JSON.parse(formattedAnnotations);
+
+    if (!id) {
+      const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
+        pdf_id,
+        created_by_id,
+        annotations: [annotation],
+      });
+
+      return createdPdfAnnotation;
+    }
+
+    await this.annotationsRepository.save(formattedAnnotations);
+
+    await this.pdfAnnotationsRepository.update(
+      { id },
+      { updated_at: new Date() }
+    );
   }
 }
