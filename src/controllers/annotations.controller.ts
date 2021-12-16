@@ -12,6 +12,7 @@ import {
 import { ApiTags } from "@nestjs/swagger";
 
 import { AnnotationService } from "../services/annotation.service";
+import { getToken } from "../helpers";
 
 @ApiTags("# Annotations")
 @Controller("annotations")
@@ -34,6 +35,17 @@ export class AnnotationsController {
       object: "annotations",
       url: req.url,
       data: await this.annotationsService.create(body),
+    };
+  }
+
+  @Post("/queue")
+  async saveAnnotation(@Body() body, @Request() req) {
+    const token = getToken(req.headers.authorization);
+    return {
+      message: "Save annotation",
+      object: "annotations",
+      url: req.url,
+      data: await this.annotationsService.saveAnnotations(body, token),
     };
   }
 

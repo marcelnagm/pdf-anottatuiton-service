@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Type } from "class-transformer";
 import {
   IsDate,
   IsDateString,
@@ -8,7 +8,7 @@ import {
   isNumberString,
   IsNumberString,
   IsString,
-} from 'class-validator';
+} from "class-validator";
 
 export class UserLoginDto {
   @IsNotEmpty()

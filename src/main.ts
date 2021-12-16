@@ -10,7 +10,7 @@ import { NODE_ENV, HTTP_PORT, ACTIVATE_GRAYLOG } from "./config";
 
 const grayLogger = new GrayLogger();
 
-async function bootstrap() {
+const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
@@ -25,8 +25,9 @@ async function bootstrap() {
   // app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(HTTP_PORT);
+
   console.log("-------------------------------------------------------------");
   console.log(`🚀 App starting in ${NODE_ENV} mode on port ${HTTP_PORT}!! 🚀`);
   console.log("-------------------------------------------------------------");
-}
+};
 bootstrap();

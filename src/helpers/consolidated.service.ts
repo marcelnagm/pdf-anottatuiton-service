@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { getConnection } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { getConnection } from "typeorm";
 
-import { parseToArray } from '../helpers';
+import { parseToArray } from "../helpers";
 
 @Injectable()
 export class ConsolidatedService {
@@ -10,7 +10,7 @@ export class ConsolidatedService {
     schoolPlanningId: number,
     planningId: number,
     schoolId: number,
-    schoolGradeId: number,
+    schoolGradeId: number
   ) {
     return await queryRunner.manager.query(
       `INSERT INTO students_v1_db.student_plannings (
@@ -18,18 +18,18 @@ export class ConsolidatedService {
          )
        VALUES (
         ${schoolGradeId}, ${planningId}, ${schoolPlanningId}, ${schoolId}, NOW(), NOW()
-         )`,
+         )`
     );
   }
 
   async insertConsolidatedStudentPlanningDiscipline(
     queryRunner: any,
     planningDisciplines: any[],
-    planningId: number,
+    planningId: number
   ) {
     const studentPlanning = (
       await queryRunner.manager.query(
-        `SELECT sp.id FROM students_v1_db.student_plannings sp WHERE sp.planningId = ${planningId} AND sp.deletedAt is null`,
+        `SELECT sp.id FROM students_v1_db.student_plannings sp WHERE sp.planningId = ${planningId} AND sp.deletedAt is null`
       )
     )[0];
 
@@ -41,7 +41,7 @@ export class ConsolidatedService {
              )
            VALUES (
             '${planningDiscipline.name}', '${planningDiscipline.shortname}', ${studentPlanning.id}, ${planningDiscipline.themeId}, ${planningDiscipline.groupId}, ${planningDiscipline.id}, NOW(), NOW()
-             )`,
+             )`
         );
       });
     }
@@ -50,11 +50,11 @@ export class ConsolidatedService {
   async insertConsolidatedStudentPlanningChapter(
     queryRunner: any,
     planningChapters: any[],
-    planningId: number,
+    planningId: number
   ) {
     const studentPlanning = (
       await queryRunner.manager.query(
-        `SELECT sp.id FROM students_v1_db.student_plannings sp WHERE sp.planningId = ${planningId} AND sp.deletedAt is null`,
+        `SELECT sp.id FROM students_v1_db.student_plannings sp WHERE sp.planningId = ${planningId} AND sp.deletedAt is null`
       )
     )[0];
 
@@ -63,7 +63,7 @@ export class ConsolidatedService {
         planningChapters.map(async (planningChapter) => {
           const planningTemplateChapter = (
             await queryRunner.manager.query(
-              `SELECT ptc.name, ptc.number FROM planning_v2_db.PlanningTemplateChapter ptc WHERE ptc.id = ${planningChapter.planningTemplateChapterId} AND ptc.deletedAt is null`,
+              `SELECT ptc.name, ptc.number FROM planning_v2_db.PlanningTemplateChapter ptc WHERE ptc.id = ${planningChapter.planningTemplateChapterId} AND ptc.deletedAt is null`
             )
           )[0];
 
@@ -82,7 +82,7 @@ export class ConsolidatedService {
               '${planningChapter.endDate.toISOString()}', 
               NOW(), 
               NOW()
-            )`,
+            )`
             );
 
             const consolidatedStudentPlanningLesson =
@@ -90,7 +90,7 @@ export class ConsolidatedService {
                 queryRunner,
                 planningChapter.planningLessons,
                 studentPlanning.id,
-                studentPlanningChapters.insertId,
+                studentPlanningChapters.insertId
               );
 
             const consolidatedStudentPlanningApplication =
@@ -99,7 +99,7 @@ export class ConsolidatedService {
                 planningChapter.planningApplications,
                 studentPlanningChapters.insertId,
                 planningId,
-                studentPlanning.id,
+                studentPlanning.id
               );
 
             return {
@@ -107,7 +107,7 @@ export class ConsolidatedService {
               consolidatedStudentPlanningApplication,
             };
           }
-        }),
+        })
       );
     }
   }
@@ -116,27 +116,27 @@ export class ConsolidatedService {
     queryRunner: any,
     planningLessons: any[],
     studentPlanningId: number,
-    studentPlanningChaptersId: number,
+    studentPlanningChaptersId: number
   ) {
     if (planningLessons.length > 0) {
       await Promise.all(
         planningLessons.map(async (planningLesson) => {
           const planningTemplateLesson = (
             await queryRunner.manager.query(
-              `SELECT ptl.name, ptl.description FROM planning_v2_db.PlanningTemplateLesson ptl WHERE ptl.id = ${planningLesson.planningTemplateLessonId} AND ptl.deletedAt is null`,
+              `SELECT ptl.name, ptl.description FROM planning_v2_db.PlanningTemplateLesson ptl WHERE ptl.id = ${planningLesson.planningTemplateLessonId} AND ptl.deletedAt is null`
             )
           )[0];
 
           if (planningTemplateLesson) {
             const planningTemplateDisciplinePlanning = (
               await queryRunner.manager.query(
-                `SELECT ptdp.planningDisciplineId FROM planning_v2_db.PlanningTemplateDisciplinePlanning ptdp WHERE ptdp.id = ${planningLesson.planningTemplateDisciplinePlanningId} AND ptdp.deletedAt is null`,
+                `SELECT ptdp.planningDisciplineId FROM planning_v2_db.PlanningTemplateDisciplinePlanning ptdp WHERE ptdp.id = ${planningLesson.planningTemplateDisciplinePlanningId} AND ptdp.deletedAt is null`
               )
             )[0];
 
             const studentPlanningDiscipline = (
               await queryRunner.manager.query(
-                `SELECT spd.id FROM students_v1_db.student_planning_disciplines spd WHERE spd.planningDisciplineId = ${planningTemplateDisciplinePlanning.planningDisciplineId} AND spd.studentPlanningId = ${studentPlanningId}`,
+                `SELECT spd.id FROM students_v1_db.student_planning_disciplines spd WHERE spd.planningDisciplineId = ${planningTemplateDisciplinePlanning.planningDisciplineId} AND spd.studentPlanningId = ${studentPlanningId}`
               )
             )[0];
 
@@ -160,10 +160,10 @@ export class ConsolidatedService {
                   '${planningTemplateLesson.description}', 
                   NOW(), 
                   NOW()
-                   )`,
+                   )`
             );
           }
-        }),
+        })
       );
     }
   }
@@ -173,7 +173,7 @@ export class ConsolidatedService {
     planningApplications: any[],
     studentPlanningChaptersId: number,
     planningId?: number,
-    studentPlanningId?: number,
+    studentPlanningId?: number
   ) {
     if (planningApplications.length > 0) {
       let studentPlanning;
@@ -181,7 +181,7 @@ export class ConsolidatedService {
       if (!studentPlanningId) {
         studentPlanning = (
           await queryRunner.manager.query(
-            `SELECT sp.id FROM students_v1_db.student_plannings sp WHERE sp.planningId = ${planningId} AND sp.deletedAt is null`,
+            `SELECT sp.id FROM students_v1_db.student_plannings sp WHERE sp.planningId = ${planningId} AND sp.deletedAt is null`
           )
         )[0];
       }
@@ -190,13 +190,13 @@ export class ConsolidatedService {
         planningApplications.map(async (planningApplication) => {
           const planningTemplateApplication = (
             await queryRunner.manager.query(
-              `SELECT pta.id, pta.instrumentQuestionGroupId, pta.planningTemplateInstrumentId FROM planning_v2_db.PlanningTemplateApplication pta WHERE pta.id = ${planningApplication.planningTemplateApplicationId} AND pta.deletedAt is null`,
+              `SELECT pta.id, pta.instrumentQuestionGroupId, pta.planningTemplateInstrumentId FROM planning_v2_db.PlanningTemplateApplication pta WHERE pta.id = ${planningApplication.planningTemplateApplicationId} AND pta.deletedAt is null`
             )
           )[0];
 
           const planningTemplateInstrument = (
             await queryRunner.manager.query(
-              `SELECT pti.instrumentId FROM planning_v2_db.PlanningTemplateInstrument pti WHERE pti.id = ${planningTemplateApplication.planningTemplateInstrumentId} AND pti.deletedAt is null`,
+              `SELECT pti.instrumentId FROM planning_v2_db.PlanningTemplateInstrument pti WHERE pti.id = ${planningTemplateApplication.planningTemplateInstrumentId} AND pti.deletedAt is null`
             )
           )[0];
 
@@ -215,28 +215,28 @@ export class ConsolidatedService {
                   ${planningTemplateInstrument.instrumentId},
                   NOW(), 
                   NOW()
-                   )`,
+                   )`
           );
-        }),
+        })
       );
     }
   }
 
   async procedureUpdateConsolidatedMap(
     queryRunner: any,
-    schoolPlanningId: number,
+    schoolPlanningId: number
   ) {
     await queryRunner.manager.query(
-      `CALL students_v1_db.Update_StudentPlanning_From_SchoolPlanning(${schoolPlanningId}, @Error);`,
+      `CALL students_v1_db.Update_StudentPlanning_From_SchoolPlanning(${schoolPlanningId}, @Error);`
     );
   }
 
   async procedureDeleteConsolidatedMap(
     queryRunner: any,
-    schoolPlanningId: number,
+    schoolPlanningId: number
   ) {
     await queryRunner.manager.query(
-      `CALL students_v1_db.Delete_StudentPlanning_From_SchoolPlanning(${schoolPlanningId}, @Error);`,
+      `CALL students_v1_db.Delete_StudentPlanning_From_SchoolPlanning(${schoolPlanningId}, @Error);`
     );
   }
 }

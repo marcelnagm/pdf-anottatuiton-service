@@ -9,12 +9,13 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
+  PrimaryColumn,
 } from "typeorm";
 import { PdfAnnotations } from "./PdfAnnotations";
 
 @Entity("annotations", { schema: "public" })
 export class Annotations {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn({ type: "uuid" })
   id?: string;
 
   @Column("text")

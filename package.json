@@ -8,7 +8,9 @@
    "scripts": {
       "prebuild": "rimraf dist",
       "build": "nest build",
-      "dev": "ts-node-dev src/main.ts",
+      "dev:queue": "ts-node-dev src/sqs-queue.ts",
+      "dev:server": "ts-node-dev src/main.ts",
+      "dev": "npm-run-all -p -r dev:*",
       "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
       "start": "ts-node src/main.ts",
       "start:dev": "nest start --watch",
@@ -34,6 +36,8 @@
       "@nestjs/swagger": "^4.8.1",
       "@nestjs/typeorm": "^7.1.5",
       "@types/ioredis": "^4.28.3",
+      "aws-sdk": "^2.1046.0",
+      "axios": "^0.24.0",
       "bcryptjs": "^2.4.3",
       "class-transformer": "^0.4.0",
       "class-validator": "^0.13.1",
@@ -43,14 +47,17 @@
       "moment": "^2.29.1",
       "mysql": "^2.14.1",
       "mysql2": "^2.2.5",
+      "npm-run-all": "^4.1.5",
       "pg": "^8.7.1",
       "redis": "^4.0.1",
       "reflect-metadata": "^0.1.10",
       "rimraf": "^3.0.2",
       "rxjs": "^6.6.6",
+      "sqs-consumer": "^5.6.0",
       "swagger-ui-express": "^4.1.6",
       "typeorm": "^0.2.34",
-      "typeorm-model-generator": "^0.4.5-no-engines"
+      "typeorm-model-generator": "^0.4.5-no-engines",
+      "yarn-run-all": "^3.1.1"
    },
    "devDependencies": {
       "@nestjs/cli": "^7.6.0",
