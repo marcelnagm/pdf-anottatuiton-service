@@ -14,7 +14,7 @@ import { Annotations } from "./Annotations";
 @Entity("pdf_annotations", { schema: "public" })
 export class PdfAnnotations {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
-  id: string;
+  id: number;
 
   @Column("uuid")
   pdf_id: string;

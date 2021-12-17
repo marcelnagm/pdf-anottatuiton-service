@@ -1,5 +1,7 @@
 import AWS from "aws-sdk";
 import { env } from "../helpers";
+import jwt from "jsonwebtoken";
+import { JWT_PRIVATE_KEY } from "../config";
 
 export const initSQS = () => new AWS.SQS({ apiVersion: "2012-11-05" });
 
@@ -11,16 +13,16 @@ export const sendQueueMessage = async (
 ) => {
   const sqs = new AWS.SQS({ apiVersion: "2012-11-05" });
 
+  const token = jwt.sign(formattedAnnotations.id, JWT_PRIVATE_KEY);
+
   const stringifyiedAnnotation = JSON.stringify(formattedAnnotations);
 
   const body = {
-    id,
+    id: `${id || 0}`,
     pdf_id,
     created_by_id,
     formattedAnnotations: stringifyiedAnnotation,
   };
-
-  console.log(formattedAnnotations);
 
   const params = {
     MessageAttributes: {
@@ -36,37 +38,17 @@ export const sendQueueMessage = async (
         DataType: "String",
         StringValue: JSON.stringify(stringifyiedAnnotation),
       },
+      id: {
+        DataType: "String",
+        StringValue: `${id || 0}`,
+      },
     },
 
     MessageBody: JSON.stringify(body),
-    MessageDeduplicationId: `${formattedAnnotations.id}${pdf_id}${created_by_id}`, // Required for FIFO queues
+    MessageDeduplicationId: token, // Required for FIFO queues
     MessageGroupId: "Annotations", // Required for FIFO queues
     QueueUrl: env("URL_SQS", ""),
   };
-
-  //   var params = {
-  //     // Remove DelaySeconds parameter and value for FIFO queues
-  //     // DelaySeconds: 10,
-  //     MessageAttributes: {
-  //       Title: {
-  //         DataType: "String",
-  //         StringValue: "The Whistler",
-  //       },
-  //       Author: {
-  //         DataType: "String",
-  //         StringValue: "John Grisham",
-  //       },
-  //       WeeksOn: {
-  //         DataType: "Number",
-  //         StringValue: "6",
-  //       },
-  //     },
-  //     MessageBody:
-  //     JSON.stringify(body),
-  //     MessageDeduplicationId: "TheWhistler", // Required for FIFO queues
-  //     MessageGroupId: "Group1", // Required for FIFO queues
-  //     QueueUrl: env("URL_SQS", ""),
-  //   };
 
   return sqs
     .sendMessage(params)
