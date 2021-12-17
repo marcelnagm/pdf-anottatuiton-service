@@ -50,13 +50,19 @@ export class Init1624479473228 implements MigrationInterface {
         columns: [
           {
             name: "id",
-            type: "varchar",
+            type: "int4",
             isPrimary: true,
-            generationStrategy: "uuid",
+            isGenerated: true,
+            generationStrategy: "increment",
           },
           {
             name: "annotation",
             type: "text",
+            isNullable: false,
+          },
+          {
+            name: "annotation_id",
+            type: "varchar",
             isNullable: false,
           },
           {

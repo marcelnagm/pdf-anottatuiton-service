@@ -1,4 +1,4 @@
-import { env, initSQS, saveAnnotationAfterQueue, axios } from "./helpers";
+import { env, initSQS, axios } from "./helpers";
 
 import { Consumer } from "sqs-consumer";
 

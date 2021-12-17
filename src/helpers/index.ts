@@ -8,6 +8,5 @@ export * from "./password";
 export * from "./redis";
 export * from "./annotations-cache";
 export * from "./aws";
-export * from "./save-annotations";
 export * from "./token";
 export * from "./axios";

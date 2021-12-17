@@ -11,12 +11,6 @@ import { Repository } from "typeorm";
 
 import { Annotations } from "../models/Annotations";
 
-import {
-  UserLoginDto,
-  UserCreateDto,
-  UserUpdateDto,
-} from "../validators/user.dto";
-
 import { AnnotationCreateDto } from "../validators/annotations.dto";
 import { PdfAnnotationCreateDto } from "../validators/pdf-annotations.dto";
 
@@ -29,7 +23,6 @@ import {
   deleteFromCache,
   getAnnotationsFromCache,
   sendQueueMessage,
-  saveAnnotationAfterQueue,
 } from "../helpers";
 
 import { PdfAnnotations } from "../models/PdfAnnotations";
@@ -66,20 +59,37 @@ export class AnnotationService {
         ...(pdfAnnotation?.id && { pdf_annotation_id: pdfAnnotation.id }),
       };
 
+      if (!response) {
+        await setInCache(cacheKey, {
+          created_at: createdAt,
+          created_by_id: pdfAnnotation.created_by_id,
+          pdf_id: pdfAnnotation.pdf_id,
+          annotations: [...response.annotations, formattedAnnotations],
+        });
+
+        return sendQueueMessage(
+          pdfAnnotation.pdf_id,
+          pdfAnnotation.created_by_id,
+          formattedAnnotations
+        );
+      }
+
+      const annotationsFiltered = response.annotations.filter(
+        (annotation) => annotation.id !== formattedAnnotations.id
+      );
+
       await setInCache(cacheKey, {
         created_at: createdAt,
         created_by_id: pdfAnnotation.created_by_id,
         pdf_id: pdfAnnotation.pdf_id,
-        annotations: [...response.annotations, formattedAnnotations],
+        annotations: [...annotationsFiltered, formattedAnnotations],
       });
 
-      const result = await sendQueueMessage(
+      return sendQueueMessage(
         pdfAnnotation.pdf_id,
         pdfAnnotation.created_by_id,
         formattedAnnotations
       );
-
-      return result;
     } catch (error) {
       throw new NotFoundException(error.message);
     }
@@ -101,7 +111,7 @@ export class AnnotationService {
       await setInCache(cacheKey, { ...response, annotations: newAnnotations });
 
       // adicionar fila?
-      await this.annotationsRepository.delete({ id });
+      await this.annotationsRepository.delete({ annotation_id: id });
 
       return { message: "Deleted with success" };
     } catch (error) {
@@ -112,22 +122,24 @@ export class AnnotationService {
   async saveAnnotations(body: any, token?: string) {
     const { id, pdf_id, created_by_id, formattedAnnotations } = body;
 
-    const annotation = JSON.parse(formattedAnnotations);
+    const { id: annotation_id, annotation } = JSON.parse(formattedAnnotations);
 
-    if (!id) {
+    const pdfAnnotationId = Number(id);
+
+    if (!pdfAnnotationId && !pdfAnnotationId) {
       const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
         pdf_id,
         created_by_id,
-        annotations: [annotation],
+        annotations: [{ annotation_id, annotation }],
       });
 
       return createdPdfAnnotation;
     }
 
-    await this.annotationsRepository.save(formattedAnnotations);
+    await this.annotationsRepository.update({ annotation_id }, { annotation });
 
     await this.pdfAnnotationsRepository.update(
-      { id },
+      { id: pdfAnnotationId },
       { updated_at: new Date() }
     );
   }
