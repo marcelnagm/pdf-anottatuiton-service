@@ -40,7 +40,7 @@ export const sendQueueMessage = async (
       },
       id: {
         DataType: "String",
-        StringValue: `${id || 0}`,
+        StringValue: body.id,
       },
     },
 
@@ -50,8 +50,5 @@ export const sendQueueMessage = async (
     QueueUrl: env("URL_SQS", ""),
   };
 
-  return sqs
-    .sendMessage(params)
-    .promise()
-    .catch((err) => console.log(err));
+  return sqs.sendMessage(params).promise();
 };

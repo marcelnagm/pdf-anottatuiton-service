@@ -1,4 +1,4 @@
-import { env, initSQS, axios } from "./helpers";
+import { env, initSQS, axios, sendToDeadLetterQueue } from "./helpers";
 
 import { Consumer } from "sqs-consumer";
 
@@ -30,12 +30,14 @@ const app = Consumer.create({
   sqs,
 });
 
-app.on("error", (err) => {
+app.on("error", async (err) => {
   console.error("queue error", err.message);
+  await sendToDeadLetterQueue();
 });
 
-app.on("processing_error", (err) => {
+app.on("processing_error", async (err) => {
   console.error("processing_error", err.message);
+  await sendToDeadLetterQueue();
 });
 
 console.log("Queue service is running");

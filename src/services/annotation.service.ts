@@ -58,7 +58,6 @@ export class AnnotationService {
         ...annotations[0],
         ...(pdfAnnotation?.id && { pdf_annotation_id: pdfAnnotation.id }),
       };
-
       if (!response) {
         await setInCache(cacheKey, {
           created_at: createdAt,
@@ -139,7 +138,7 @@ export class AnnotationService {
     await this.annotationsRepository.update({ annotation_id }, { annotation });
 
     await this.pdfAnnotationsRepository.update(
-      { id: pdfAnnotationId },
+      { id },
       { updated_at: new Date() }
     );
   }
