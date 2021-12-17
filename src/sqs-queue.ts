@@ -1,32 +1,17 @@
-import { env, initSQS, axios, sendToDeadLetterQueue } from "./helpers";
+import {
+  env,
+  initSQS,
+  sendToDeadLetterQueue,
+  handleQueueMessage,
+} from "./helpers";
 
 import { Consumer } from "sqs-consumer";
 
 const sqs = initSQS();
 
-const queueURL = env("URL_SQS", "");
-
 const app = Consumer.create({
   queueUrl: env("URL_SQS", ""),
-  handleMessage: async (message) => {
-    const data = JSON.parse(message.Body);
-
-    console.log("data >>", data);
-
-    await axios({
-      method: "POST",
-      url: "/annotations/queue",
-      data,
-      headers: { Authorization: "" },
-    });
-
-    await sqs
-      .deleteMessage({
-        QueueUrl: queueURL,
-        ReceiptHandle: message.ReceiptHandle,
-      })
-      .promise();
-  },
+  handleMessage: (message) => handleQueueMessage(message, sqs, app),
   sqs,
 });
 

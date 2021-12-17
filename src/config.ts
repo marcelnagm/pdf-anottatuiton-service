@@ -32,3 +32,4 @@ export const API_URL: string = env("API_URL", "http://localhost:5000");
 export const DLQ_URL_SQS: string = env("DLQ_URL_SQS");
 export const AWS_REGION: string = env("AWS_REGION");
 export const URL_SQS: string = env("URL_SQS");
+export const ARN_DLQ: string = env("ARN_DLQ");

@@ -1,15 +1,15 @@
 import aws from "aws-sdk";
-import { AWS_REGION, DLQ_URL_SQS } from "../config";
+import { AWS_REGION, DLQ_URL_SQS, ARN_DLQ } from "../config";
 
 export const sendToDeadLetterQueue = async () => {
   aws.config.update({ region: AWS_REGION });
+  console.log("Trying on error");
 
-  // Create the SQS service object
   const sqs = new aws.SQS({ apiVersion: "2012-11-05" });
 
   const params = {
     Attributes: {
-      RedrivePolicy: `{"deadLetterTargetArn":"dlq-pdf-annotations-queue-hml.fifo","maxReceiveCount":"1"}`,
+      RedrivePolicy: `{"deadLetterTargetArn":"${ARN_DLQ}","maxReceiveCount":"10"}`,
     },
     QueueUrl: DLQ_URL_SQS,
   };
