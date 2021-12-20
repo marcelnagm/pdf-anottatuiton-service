@@ -70,7 +70,8 @@ export class AnnotationService {
         return sendQueueMessage(
           pdfAnnotation.pdf_id,
           pdfAnnotation.created_by_id,
-          formattedAnnotations
+          formattedAnnotations,
+          pdfAnnotation?.id
         );
       }
 
@@ -88,7 +89,8 @@ export class AnnotationService {
       return sendQueueMessage(
         pdfAnnotation.pdf_id,
         pdfAnnotation.created_by_id,
-        formattedAnnotations
+        formattedAnnotations,
+        pdfAnnotation?.id
       );
     } catch (error) {
       throw new NotFoundException(error.message);
@@ -126,21 +128,29 @@ export class AnnotationService {
 
     const pdfAnnotationId = Number(id);
 
-    if (!pdfAnnotationId && !pdfAnnotationId) {
-      const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
-        pdf_id,
-        created_by_id,
-        annotations: [{ annotation_id, annotation }],
-      });
+    const annotationInDb = await this.annotationsRepository.findOne({
+      annotation_id,
+    });
 
-      return createdPdfAnnotation;
+    if (annotationInDb) {
+      await this.annotationsRepository.update(
+        { annotation_id },
+        { annotation }
+      );
+
+      return this.pdfAnnotationsRepository.update(
+        { id: pdfAnnotationId },
+        { updated_at: new Date() }
+      );
     }
 
-    await this.annotationsRepository.update({ annotation_id }, { annotation });
+    console.log("criação >>", id);
+    const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
+      pdf_id,
+      created_by_id,
+      annotations: [{ annotation_id, annotation }],
+    });
 
-    await this.pdfAnnotationsRepository.update(
-      { id: pdfAnnotationId },
-      { updated_at: new Date() }
-    );
+    return createdPdfAnnotation;
   }
 }

@@ -39,13 +39,14 @@ export class PdfAnnotationService {
 
     const response = await getAnnotationsFromCache(cacheKey);
 
-    const pdfAnnotations = await this.pdfAnnotationsRepository.findOne({
-      relations: ["annotations"],
-      where: {
+    const pdfAnnotations = await this.pdfAnnotationsRepository
+      .createQueryBuilder("pdf_annotation")
+      .innerJoinAndSelect("pdf_annotation.annotations", "annotation")
+      .where("pdf_annotation.pdf_id = :pdf_id", { pdf_id: queryParams.pdf_id })
+      .andWhere("pdf_annotation.created_by_id = :created_by_id", {
         created_by_id: queryParams.created_by_id,
-        pdf_id: queryParams.pdf_id,
-      },
-    });
+      })
+      .getOne();
 
     const pdfCreatedAtIsNewest = moment(
       pdfAnnotations?.updated_at

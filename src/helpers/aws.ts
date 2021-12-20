@@ -1,7 +1,8 @@
 import AWS from "aws-sdk";
-import { env } from "../helpers";
+import { env, axios } from "../helpers";
 import jwt from "jsonwebtoken";
-import { JWT_PRIVATE_KEY } from "../config";
+import { JWT_PRIVATE_KEY, URL_SQS } from "../config";
+import { v4 } from "uuid";
 
 export const initSQS = () => new AWS.SQS({ apiVersion: "2012-11-05" });
 
@@ -12,8 +13,6 @@ export const sendQueueMessage = async (
   id?: string
 ) => {
   const sqs = new AWS.SQS({ apiVersion: "2012-11-05" });
-
-  const token = jwt.sign(formattedAnnotations.id, JWT_PRIVATE_KEY);
 
   const stringifyiedAnnotation = JSON.stringify(formattedAnnotations);
 
@@ -40,18 +39,42 @@ export const sendQueueMessage = async (
       },
       id: {
         DataType: "String",
-        StringValue: `${id || 0}`,
+        StringValue: body.id,
       },
     },
 
     MessageBody: JSON.stringify(body),
-    MessageDeduplicationId: token, // Required for FIFO queues
+    MessageDeduplicationId: v4(), // Required for FIFO queues
     MessageGroupId: "Annotations", // Required for FIFO queues
     QueueUrl: env("URL_SQS", ""),
   };
 
-  return sqs
-    .sendMessage(params)
-    .promise()
-    .catch((err) => console.log(err));
+  return sqs.sendMessage(params).promise();
+};
+
+export const handleQueueMessage = async (
+  message: { Body?: string; ReceiptHandle?: string },
+  sqs: any,
+  app: any
+) => {
+  try {
+    const data = JSON.parse(message.Body);
+    console.log("Processing message");
+
+    await axios({
+      method: "POST",
+      url: "/annotations/queue",
+      data,
+      headers: { Authorization: "" },
+    });
+
+    await sqs
+      .deleteMessage({
+        QueueUrl: URL_SQS,
+        ReceiptHandle: message.ReceiptHandle,
+      })
+      .promise();
+  } catch (error) {
+    app.emit("error", new Error(error.message));
+  }
 };
