@@ -102,6 +102,7 @@ export class AnnotationService {
 
     try {
       const cacheKey = `${created_by_id}:${pdf_id}`;
+
       const { annotations, ...response } = await getAnnotationsFromCache(
         cacheKey
       );
@@ -122,11 +123,9 @@ export class AnnotationService {
   }
 
   async saveAnnotations(body: any, token?: string) {
-    const { id, pdf_id, created_by_id, formattedAnnotations } = body;
+    const { pdf_id, created_by_id, formattedAnnotations } = body;
 
     const { id: annotation_id, annotation } = JSON.parse(formattedAnnotations);
-
-    const pdfAnnotationId = Number(id);
 
     const annotationInDb = await this.annotationsRepository.findOne({
       annotation_id,
@@ -139,13 +138,18 @@ export class AnnotationService {
       );
 
       return this.pdfAnnotationsRepository.update(
-        { id: pdfAnnotationId },
+        { pdf_id, created_by_id },
         { updated_at: new Date() }
       );
     }
 
+    const pdfAnnotationDb = await this.pdfAnnotationsRepository.findOne({
+      pdf_id,
+      created_by_id,
+    });
+
     const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
-      ...(pdfAnnotationId && { id: pdfAnnotationId }),
+      ...(pdfAnnotationDb && { id: pdfAnnotationDb.id }),
       pdf_id,
       created_by_id,
       updated_at: new Date(),
@@ -155,7 +159,7 @@ export class AnnotationService {
       annotation,
       annotation_id,
       ...(createdPdfAnnotation && {
-        pdf_annotation_id: pdfAnnotationId || createdPdfAnnotation.id,
+        pdf_annotation_id: pdfAnnotationDb?.id || createdPdfAnnotation.id,
       }),
     });
 

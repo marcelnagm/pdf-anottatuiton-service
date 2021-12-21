@@ -54,7 +54,7 @@ export class PdfAnnotationService {
       pdfAnnotations?.updated_at
     ).isSameOrAfter(cacheCreatedAt);
 
-    if (!pdfCreatedAtIsNewest) {
+    if (!pdfAnnotations?.updated_at || !pdfCreatedAtIsNewest) {
       return response;
     }
 
