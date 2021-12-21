@@ -28,8 +28,6 @@ export class PdfAnnotations {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => Annotations, (annotation) => annotation.pdf_annotations, {
-    cascade: true,
-  })
+  @OneToMany(() => Annotations, (annotation) => annotation.pdf_annotations)
   annotations: Annotations[];
 }
