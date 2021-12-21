@@ -48,9 +48,11 @@ export class PdfAnnotationService {
       })
       .getOne();
 
+    const cacheCreatedAt = moment(response.created_at);
+
     const pdfCreatedAtIsNewest = moment(
       pdfAnnotations?.updated_at
-    ).isSameOrAfter(response.created_at);
+    ).isSameOrAfter(cacheCreatedAt);
 
     if (!pdfCreatedAtIsNewest) {
       return response;

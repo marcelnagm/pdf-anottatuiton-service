@@ -144,11 +144,19 @@ export class AnnotationService {
       );
     }
 
-    console.log("criação >>", id);
     const createdPdfAnnotation = await this.pdfAnnotationsRepository.save({
+      ...(pdfAnnotationId && { id: pdfAnnotationId }),
       pdf_id,
       created_by_id,
-      annotations: [{ annotation_id, annotation }],
+      updated_at: new Date(),
+    });
+
+    await this.annotationsRepository.save({
+      annotation,
+      annotation_id,
+      ...(createdPdfAnnotation && {
+        pdf_annotation_id: pdfAnnotationId || createdPdfAnnotation.id,
+      }),
     });
 
     return createdPdfAnnotation;

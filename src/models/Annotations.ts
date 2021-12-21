@@ -35,7 +35,7 @@ export class Annotations {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => PdfAnnotations, (pdf) => pdf.annotations)
+  @ManyToOne(() => PdfAnnotations, (pdf) => pdf.annotations, { cascade: true })
   @JoinColumn({ name: "pdf_annotation_id", referencedColumnName: "id" })
   pdf_annotations: PdfAnnotations;
 }
