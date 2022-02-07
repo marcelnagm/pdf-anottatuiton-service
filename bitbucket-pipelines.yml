@@ -141,11 +141,11 @@ pipelines:
           trigger: manual
           script:
             # Configure Kops Settings
-            - export KOPS_STATE_STORE=PRD_KOPS_STATE_STORE
-            - kops export kubecfg PRD_CLUSTER_NAME
+            - export KOPS_STATE_STORE=$PRD_KOPS_STATE_STORE
+            - kops export kubecfg $PRD_CLUSTER_NAME
 
             # Update Kubernetes Deployment Image
-            - kubectl set image deployment/pdf-annotations-service pdf-annotations-service=517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER -n PRD_KUBERNETES_APP_NAMESPACE
+            - kubectl set image deployment/pdf-annotations-service pdf-annotations-service=517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER -n $PRD_KUBERNETES_APP_NAMESPACE
 
             - pipe: atlassian/slack-notify:0.3.6
               variables:
