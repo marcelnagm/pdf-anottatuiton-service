@@ -10,4 +10,4 @@ RUN npm install
 RUN npm run build 
 # Bundle app source
 RUN rm -fr ./src
-CMD [ "node", "./dist/main.js" ]
+CMD [ "npm", "run", "start"]
