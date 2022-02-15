@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { ValidationPipe } from "@nestjs/common";
+import { json } from "body-parser";
 
 import { AppModule } from "./app.module";
 
@@ -16,6 +17,8 @@ const bootstrap = async () => {
   app.enableCors({
     origin: true,
   });
+
+  app.use(json({ limit: "250mb" }));
 
   if (ACTIVATE_GRAYLOG === true) {
     app.use(graylogMiddleware);
