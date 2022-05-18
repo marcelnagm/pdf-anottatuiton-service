@@ -5,149 +5,186 @@ clone:
 
 pipelines:
   branches:
-    "{feature/*,sprint*}":
+    "{aux}":
       - step:
-          name: "[Homolog - Build]"
+          name: "[AUX - Build]"
           image: atlassian/pipelines-awscli:latest
           script:
-            # AWS ECR Login
             - eval $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
-            - export BUILD_ID=$BITBUCKET_BRANCH_$BITBUCKET_COMMIT_$BITBUCKET_BUILD_NUMBER
-            - docker build -t 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID -f ./Dockerfile .
 
-            # # Push Docker Image to AWS ECR
-            - docker tag 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
-            - docker push 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
+            # export global envs
+            - export AWS_ACCESS_KEY_ID=$GLOBAL_LEARNING_AWS_ACCESS_KEY_ID
+            - export AWS_SECRET_ACCESS_KEY=$GLOBAL_LEARNING_AWS_SECRET_ACCESS_KEY
+            - export AWS_DEFAULT_REGION=$GLOBAL_LEARNING_AWS_DEFAULT_REGION
+
+            # Docker Build
+            - docker build -t $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -f $DOCKERFILE_PATH .
+
+            # Push Image to AWS ECR
+            - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
 
       - step:
-          name: "[Homolog - Deploy]"
+          name: "[AUX - Deploy]"
           image: conexia/bitbucket-pipeline:latest
           trigger: manual
           script:
+            # Export Kops Settings
+            - export CLUSTER_NAME=$AUX_CLUSTER_NAME
+            - export SERVICE_NAME=$AUX_SERVICE_NAME
+            - export KUBERNETES_APP_NAMESPACE=$AUX_KUBERNETES_APP_NAMESPACE
+            - export KOPS_STATE_STORE=$AUX_KOPS_STATE_STORE
+
             # Configure Kops Settings
-            - export KOPS_STATE_STORE=$HML_KOPS_STATE_STORE
-            - kops export kubecfg $HML_CLUSTER_NAME
+            - kops export kubecfg $CLUSTER_NAME
 
             # Update Kubernetes Deployment Image
-            - kubectl set image deployment/h-pdf-annotations-service h-pdf-annotations-service=517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER -n $HML_KUBERNETES_APP_NAMESPACE
+            - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
 
-    "{integracao}":
+    "{develop}":
       - step:
-          name: "[Integração - Build]"
+          name: "[DEV - Build]"
           image: atlassian/pipelines-awscli:latest
           script:
-            # AWS ECR Login
             - eval $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
-            - export BUILD_ID=$BITBUCKET_BRANCH_$BITBUCKET_COMMIT_$BITBUCKET_BUILD_NUMBER
-            - docker build -t 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID -f ./Dockerfile .
 
-            # # Push Docker Image to AWS ECR
-            - docker tag 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
-            - docker push 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
+            # export global envs
+            - export AWS_ACCESS_KEY_ID=$GLOBAL_LEARNING_AWS_ACCESS_KEY_ID
+            - export AWS_SECRET_ACCESS_KEY=$GLOBAL_LEARNING_AWS_SECRET_ACCESS_KEY
+            - export AWS_DEFAULT_REGION=$GLOBAL_LEARNING_AWS_DEFAULT_REGION
+
+            # Docker Build
+            - docker build -t $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -f $DOCKERFILE_PATH .
+
+            # Push Image to AWS ECR
+            - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
 
       - step:
-          name: "[Integração - Deploy]"
+          name: "[DEV - Deploy]"
           image: conexia/bitbucket-pipeline:latest
           trigger: manual
           script:
+            # Export Kops Settings
+            - export CLUSTER_NAME=$DEV_CLUSTER_NAME
+            - export SERVICE_NAME=$DEV_SERVICE_NAME
+            - export KUBERNETES_APP_NAMESPACE=$DEV_KUBERNETES_APP_NAMESPACE
+            - export KOPS_STATE_STORE=$DEV_KOPS_STATE_STORE
+
             # Configure Kops Settings
-            - export KOPS_STATE_STORE=$INT_KOPS_STATE_STORE
-            - kops export kubecfg $INT_CLUSTER_NAME
+            - kops export kubecfg $CLUSTER_NAME
 
             # Update Kubernetes Deployment Image
-            - kubectl set image deployment/int-pdf-annotations-service int-pdf-annotations-service=517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER -n $INT_KUBERNETES_APP_NAMESPACE
+            - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
 
-    "{planejamento}":
+    "{qa}":
       - step:
-          name: "[Planejamento] Build"
+          name: "[QA - Build]"
           image: atlassian/pipelines-awscli:latest
           script:
-            # AWS ECR Login
             - eval $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
-            - export BUILD_ID=$BITBUCKET_BRANCH_$BITBUCKET_COMMIT_$BITBUCKET_BUILD_NUMBER
 
-            # Push Docker Image to AWS ECR
-            - docker build -t 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID --target NODE_PROD -f ./Dockerfile .
-            - docker tag 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
-            - docker push 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
+            # export global envs
+            - export AWS_ACCESS_KEY_ID=$GLOBAL_LEARNING_AWS_ACCESS_KEY_ID
+            - export AWS_SECRET_ACCESS_KEY=$GLOBAL_LEARNING_AWS_SECRET_ACCESS_KEY
+            - export AWS_DEFAULT_REGION=$GLOBAL_LEARNING_AWS_DEFAULT_REGION
 
-      - step:
-          name: "[Planejamento] Deploy"
-          image: conexia/bitbucket-pipeline:latest
-          trigger: manual
-          script:
-            # Configure Kops Settings
-            - export KOPS_STATE_STORE=$PLA_KOPS_STATE_STORE
-            - kops export kubecfg $PLA_CLUSTER_NAME
+            # Docker Build
+            - docker build -t $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -f $DOCKERFILE_PATH .
 
-            # Update Kubernetes Deployment Image
-            - kubectl set image deployment/pla-pdf-annotations-service pla-pdf-annotations-service=517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER -n $PLA_KUBERNETES_APP_NAMESPACE
-
-    "{develop,fix*,hotfix*}":
-      - step:
-          name: "[Develop- Build]"
-          image: atlassian/pipelines-awscli:latest
-          script:
-            # AWS ECR Login
-            - eval $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
-            - export BUILD_ID=$BITBUCKET_BRANCH_$BITBUCKET_COMMIT_$BITBUCKET_BUILD_NUMBER
-            - docker build -t 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID -f ./Dockerfile .
-
-            # # Push Docker Image to AWS ECR
-            - docker tag 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
-            - docker push 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
-
-      - step:
-          name: "[Homolog - Deploy]"
-          image: conexia/bitbucket-pipeline:latest
-          trigger: manual
-          script:
-            # Configure Kops Settings
-            - export KOPS_STATE_STORE=$HML_KOPS_STATE_STORE
-            - kops export kubecfg $HML_CLUSTER_NAME
-
-            # Update Kubernetes Deployment Image
-            - kubectl set image deployment/h-pdf-annotations-service h-pdf-annotations-service=517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER -n $HML_KUBERNETES_APP_NAMESPACE
+            # Push Image to AWS ECR
+            - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
 
       - step:
           name: "[QA - Deploy]"
           image: conexia/bitbucket-pipeline:latest
           trigger: manual
           script:
-            # Configure Kops Settings
+            # Export Kops Settings
+            - export CLUSTER_NAME=$QA_CLUSTER_NAME
+            - export SERVICE_NAME=$QA_SERVICE_NAME
+            - export KUBERNETES_APP_NAMESPACE=$QA_KUBERNETES_APP_NAMESPACE
             - export KOPS_STATE_STORE=$QA_KOPS_STATE_STORE
-            - kops export kubecfg $QA_CLUSTER_NAME
+
+            # Configure Kops Settings
+            - kops export kubecfg $CLUSTER_NAME
 
             # Update Kubernetes Deployment Image
-            - kubectl set image deployment/qa-pdf-annotations-service qa-pdf-annotations-service=517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER -n $QA_KUBERNETES_APP_NAMESPACE
+            - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
 
-    "{master}":
+    "{homolog}":
       - step:
-          name: "[Prod - Build]"
+          name: "[HML - Build]"
           image: atlassian/pipelines-awscli:latest
           script:
-            # AWS ECR Login
             - eval $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
-            - export BUILD_ID=$BITBUCKET_BRANCH_$BITBUCKET_COMMIT_$BITBUCKET_BUILD_NUMBER
-            - docker build -t 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID -f ./Dockerfile .
 
-            # # Push Docker Image to AWS ECR
-            - docker tag 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:$BUILD_ID 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
-            - docker push 517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER
+            # export global envs
+            - export AWS_ACCESS_KEY_ID=$GLOBAL_LEARNING_AWS_ACCESS_KEY_ID
+            - export AWS_SECRET_ACCESS_KEY=$GLOBAL_LEARNING_AWS_SECRET_ACCESS_KEY
+            - export AWS_DEFAULT_REGION=$GLOBAL_LEARNING_AWS_DEFAULT_REGION
+
+            # Docker Build
+            - docker build -t $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -f $DOCKERFILE_PATH .
+
+            # Push Image to AWS ECR
+            - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
 
       - step:
-          name: "[Prod - Deploy]"
+          name: "[HML - Deploy]"
           image: conexia/bitbucket-pipeline:latest
           trigger: manual
           script:
+            # Export Kops Settings
+            - export CLUSTER_NAME=$HML_CLUSTER_NAME
+            - export SERVICE_NAME=$HML_SERVICE_NAME
+            - export KUBERNETES_APP_NAMESPACE=$HML_KUBERNETES_APP_NAMESPACE
+            - export KOPS_STATE_STORE=$HML_KOPS_STATE_STORE
+
             # Configure Kops Settings
-            - export KOPS_STATE_STORE=$PRD_KOPS_STATE_STORE
-            - kops export kubecfg $PRD_CLUSTER_NAME
+            - kops export kubecfg $CLUSTER_NAME
 
             # Update Kubernetes Deployment Image
-            - kubectl set image deployment/pdf-annotations-service pdf-annotations-service=517542778447.dkr.ecr.sa-east-1.amazonaws.com/pdf-annotations-service:prod-$BITBUCKET_BUILD_NUMBER -n $PRD_KUBERNETES_APP_NAMESPACE
+            - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
 
+    "{master}":
+      - step:
+          name: "[PRD - Build]"
+          image: atlassian/pipelines-awscli:latest
+          script:
+            - eval $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
+
+            # export global envs
+            - export AWS_ACCESS_KEY_ID=$GLOBAL_LEARNING_AWS_ACCESS_KEY_ID
+            - export AWS_SECRET_ACCESS_KEY=$GLOBAL_LEARNING_AWS_SECRET_ACCESS_KEY
+            - export AWS_DEFAULT_REGION=$GLOBAL_LEARNING_AWS_DEFAULT_REGION
+
+            # Docker Build
+            - docker build -t $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -f $DOCKERFILE_PATH .
+
+            # Push Image to AWS ECR
+            - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
+
+      - step:
+          name: "[PRD - Deploy]"
+          image: conexia/bitbucket-pipeline:latest
+          trigger: manual
+          script:
+            # Export Kops Settings
+            - export CLUSTER_NAME=$PRD_CLUSTER_NAME
+            - export SERVICE_NAME=$PRD_SERVICE_NAME
+            - export KUBERNETES_APP_NAMESPACE=$PRD_KUBERNETES_APP_NAMESPACE
+            - export KOPS_STATE_STORE=$PRD_KOPS_STATE_STORE
+
+            # Configure Kops Settings
+            - kops export kubecfg $CLUSTER_NAME
+
+            # Update Kubernetes Deployment Image
+            - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
             - pipe: atlassian/slack-notify:0.3.6
               variables:
                 WEBHOOK_URL: $WEBHOOK_URL
                 MESSAGE: "Deploy in Production.\n$BITBUCKET_REPO_SLUG ($BITBUCKET_PROJECT_KEY) on branch $BITBUCKET_BRANCH"
+
+definitions:
+  services:
+    docker:
+      memory: 3072 # Increase the memory for the Docker service from 1GB to 3GB
