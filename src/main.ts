@@ -1,7 +1,6 @@
 import { NestFactory } from "@nestjs/core";
-import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import { ValidationPipe } from "@nestjs/common";
 import { json } from "body-parser";
+import "newrelic";
 
 import { AppModule } from "./app.module";
 
@@ -24,8 +23,6 @@ const bootstrap = async () => {
     app.use(graylogMiddleware);
     app.useLogger(grayLogger);
   }
-
-  // app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(HTTP_PORT);
 
