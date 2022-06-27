@@ -1,4 +1,5 @@
 FROM node:12.11.1-alpine AS builder
+ENV NEW_RELIC_NO_CONFIG_FILE=true
 # Create app directory
 EXPOSE 8000
 RUN mkdir /workspace
