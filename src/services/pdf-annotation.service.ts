@@ -58,6 +58,8 @@ export class PdfAnnotationService {
       return response;
     }
 
+    await setInCache(cacheKey, { ...pdfAnnotations });
+
     return pdfAnnotations;
   }
 }
