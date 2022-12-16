@@ -32,5 +32,5 @@ export class PdfAnnotationCreateDto {
   @IsString()
   teacher_id?: string;
 
-  annotations: [{ annotation: string; id: string; pdf_annotation_id?: number }];
+  annotations: [{ annotation: string; annotation_id: string; pdf_annotation_id?: number }];
 }
