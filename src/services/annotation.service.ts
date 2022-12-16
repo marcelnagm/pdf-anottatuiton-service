@@ -75,8 +75,9 @@ export class AnnotationService {
         );
       }
 
+
       const annotationsFiltered = response.annotations.filter(
-        (annotation) => annotation.id !== formattedAnnotations.id
+        (annotation) => annotation.annotation_id !== formattedAnnotations.annotation_id
       );
 
       await setInCache(cacheKey, {
@@ -108,7 +109,7 @@ export class AnnotationService {
       );
 
       const newAnnotations = annotations.filter(
-        (annotation: { id: string }) => annotation.id !== id
+        (annotation: { annotation_id: string }) => annotation.annotation_id !== id
       );
 
       await setInCache(cacheKey, { ...response, annotations: newAnnotations });

@@ -1,7 +1,7 @@
 import { getFromCache, setInCache, deleteFromCache, parseToArray } from ".";
 
 export interface ResponseCache {
-  annotations: [{ id: string; annotation: string }];
+  annotations: [{ annotation_id: string; annotation: string }];
   created_at: string;
 }
 
