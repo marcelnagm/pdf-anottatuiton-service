@@ -7,12 +7,15 @@ import { AppModule } from "./app.module";
 import { graylogMiddleware } from "./middlewares/graylog.middleware";
 import { GrayLogger } from "./helpers/graylog";
 import { NODE_ENV, HTTP_PORT, ACTIVATE_GRAYLOG } from "./config";
+import { sqsService } from "./sqs-queue";
 
 const grayLogger = new GrayLogger();
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
 
+  app.get(sqsService).startSQS();
+  
   app.enableCors({
     origin: true,
   });

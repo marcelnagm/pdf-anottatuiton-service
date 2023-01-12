@@ -38,18 +38,7 @@ export class AnnotationsController {
     };
   }
 
-  @Post("/queue")
-  async saveAnnotation(@Body() body, @Request() req) {
-    const token = getToken(req.headers.authorization);
-    return {
-      message: "Save annotation",
-      object: "annotations",
-      url: req.url,
-      data: await this.annotationsService.saveAnnotations(body, token),
-    };
-  }
-
-  @Delete(":id/pdf/:pdf_id/users/:created_by_id")
+  @Delete(":annotation_id/pdf/:pdf_id/users/:created_by_id")
   async delete(@Param() params, @Request() req) {
     return {
       message: "Delete",
