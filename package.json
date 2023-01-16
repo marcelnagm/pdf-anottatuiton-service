@@ -8,11 +8,9 @@
    "scripts": {
       "prebuild": "rimraf dist",
       "build": "nest build",
-      "dev:queue": "ts-node-dev src/sqs-queue.ts",
       "dev:server": "ts-node-dev src/main.ts",
       "dev": "npm-run-all -p -r dev:*",
       "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-      "start:queue": "ts-node-dev dist/sqs-queue.js",
       "start": "npm-run-all -p -r start:*",
       "start:server": "ts-node dist/main.js",
       "pre:db:migrate": "nest build",

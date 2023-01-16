@@ -10,5 +10,5 @@ export const getAnnotationsFromCache = async (
 ): Promise<ResponseCache> => {
   const response = await getFromCache(key);
 
-  return response || { annotations: [] };
+  return response;
 };
