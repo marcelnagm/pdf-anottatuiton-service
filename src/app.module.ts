@@ -33,6 +33,8 @@ import {
   SYNCHRONIZE_TYPEORM_DB,
   ACTIVATE_GRAYLOG,
 } from "./config";
+import { sqsService } from "./sqs-queue";
+import { LoggerModule } from "./modules/logger.module";
 
 @Module({
   imports: [
@@ -79,9 +81,10 @@ import {
     UserModule,
     AnnotationModule,
     PdfAnnotationModule,
+    LoggerModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [sqsService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

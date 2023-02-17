@@ -2,27 +2,19 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  UnauthorizedException,
-  HttpException,
-  HttpStatus,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
 import { Annotations } from "../models/Annotations";
 
-import { AnnotationCreateDto } from "../validators/annotations.dto";
 import { PdfAnnotationCreateDto } from "../validators/pdf-annotations.dto";
 
 import {
-  generateTokens,
-  encryptPassword,
-  getPagination,
-  getFromCache,
   setInCache,
-  deleteFromCache,
   getAnnotationsFromCache,
   sendQueueMessage,
+  GrayLogger,
 } from "../helpers";
 
 import { PdfAnnotations } from "../models/PdfAnnotations";
@@ -49,6 +41,10 @@ export class AnnotationService {
     try {
       const { annotations, ...pdfAnnotation } = body;
 
+      const graylog = new GrayLogger();
+
+      graylog.log("create")
+
       const cacheKey = `${pdfAnnotation.created_by_id}:${pdfAnnotation.pdf_id}`;
       const response = await getAnnotationsFromCache(cacheKey);
 
@@ -64,7 +60,7 @@ export class AnnotationService {
           created_at: createdAt,
           created_by_id: pdfAnnotation.created_by_id,
           pdf_id: pdfAnnotation.pdf_id,
-          annotations: [...response.annotations, formattedAnnotations],
+          annotations: [formattedAnnotations],
         });
 
         return sendQueueMessage(
@@ -76,9 +72,9 @@ export class AnnotationService {
       }
 
       const annotationsFiltered = response.annotations.filter(
-        (annotation) => annotation.id !== formattedAnnotations.id
+        (annotation) => annotation.annotation_id !== formattedAnnotations.annotation_id
       );
-
+      
       await setInCache(cacheKey, {
         created_at: createdAt,
         created_by_id: pdfAnnotation.created_by_id,
@@ -97,24 +93,29 @@ export class AnnotationService {
     }
   }
 
-  async delete(params: { created_by_id: string; pdf_id: string; id: string }) {
-    const { created_by_id, pdf_id, id } = params;
+  async delete(params: { created_by_id: string; pdf_id: string; annotation_id: string }) {
+    const { created_by_id, pdf_id, annotation_id } = params;
 
     try {
       const cacheKey = `${created_by_id}:${pdf_id}`;
 
-      const { annotations, ...response } = await getAnnotationsFromCache(
+      const { annotations } = await getAnnotationsFromCache(
         cacheKey
       );
 
       const newAnnotations = annotations.filter(
-        (annotation: { id: string }) => annotation.id !== id
+        (annotation: { annotation_id: string }) => annotation.annotation_id !== annotation_id
       );
 
-      await setInCache(cacheKey, { ...response, annotations: newAnnotations });
+      await setInCache(cacheKey, {
+        created_at: new Date(),
+        created_by_id: created_by_id,
+        pdf_id: pdf_id,
+        annotations: newAnnotations,
+      });
 
-      // adicionar fila?
-      await this.annotationsRepository.delete({ annotation_id: id });
+      // // adicionar fila?
+      await this.annotationsRepository.delete({ annotation_id: annotation_id });
 
       return { message: "Deleted with success" };
     } catch (error) {
@@ -122,10 +123,12 @@ export class AnnotationService {
     }
   }
 
-  async saveAnnotations(body: any, token?: string) {
+  async saveAnnotations(body: any) {
     const { pdf_id, created_by_id, formattedAnnotations } = body;
+    const graylog = new GrayLogger()
+    graylog.log("saveAnnotations")
 
-    const { id: annotation_id, annotation } = JSON.parse(formattedAnnotations);
+    const { annotation_id, annotation } = JSON.parse(formattedAnnotations);
 
     const annotationInDb = await this.annotationsRepository.findOne({
       annotation_id,
