@@ -51,12 +51,14 @@ export class PdfAnnotationService {
       })
       .getOne();
 
-    await setInCache(cacheKey, {
-      created_at: pdfAnnotations.created_at,
-      created_by_id: pdfAnnotations.created_by_id,
-      pdf_id: pdfAnnotations.pdf_id,
-      annotations: [...pdfAnnotations.annotations],
-    });
+    if(pdfAnnotations){
+      await setInCache(cacheKey, {
+        created_at: pdfAnnotations.created_at,
+        created_by_id: pdfAnnotations.created_by_id,
+        pdf_id: pdfAnnotations.pdf_id,
+        annotations: [...pdfAnnotations.annotations],
+      });
+    }
 
     return pdfAnnotations;
   }
