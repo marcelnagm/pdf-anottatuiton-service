@@ -45,18 +45,18 @@ export class PdfAnnotationService {
     const pdfAnnotations = await this.pdfAnnotationsRepository
       .createQueryBuilder("pdf_annotation")
       .leftJoinAndSelect("pdf_annotation.annotations", "annotation")
-      .where("pdf_annotation.pdf_id = :pdf_id", { pdf_id: queryParams.pdf_id })
+      .where("pdf_annotation.pdf_id = :pdf_id", { pdf_id: queryParams?.pdf_id })
       .andWhere("pdf_annotation.created_by_id = :created_by_id", {
-        created_by_id: queryParams.created_by_id,
+        created_by_id: queryParams?.created_by_id,
       })
       .getOne();
 
     if(pdfAnnotations){
       await setInCache(cacheKey, {
-        created_at: pdfAnnotations.created_at,
-        created_by_id: pdfAnnotations.created_by_id,
-        pdf_id: pdfAnnotations.pdf_id,
-        annotations: [...pdfAnnotations.annotations],
+        created_at: pdfAnnotations?.created_at,
+        created_by_id: pdfAnnotations?.created_by_id,
+        pdf_id: pdfAnnotations?.pdf_id,
+        annotations: [...pdfAnnotations?.annotations],
       });
     }
 
