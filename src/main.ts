@@ -1,3 +1,5 @@
+import { tracer } from 'dd-trace';
+tracer.init({ logInjection: true });
 import { NestFactory } from "@nestjs/core";
 import { json } from "body-parser";
 import "newrelic";
