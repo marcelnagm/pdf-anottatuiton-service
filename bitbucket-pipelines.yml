@@ -1,8 +1,3 @@
-options:
-  docker: true
-clone:
-  depth: full
-
 pipelines:
   branches:
     "{aux}":
@@ -23,6 +18,12 @@ pipelines:
             # Push Image to AWS ECR
             - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
 
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker               
+
       - step:
           name: "[AUX - Deploy]"
           image: conexia/bitbucket-pipeline:latest
@@ -39,6 +40,12 @@ pipelines:
 
             # Update Kubernetes Deployment Image
             - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
+
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker   
 
     "{develop}":
       - step:
@@ -58,6 +65,12 @@ pipelines:
             # Push Image to AWS ECR
             - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
 
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker   
+
       - step:
           name: "[DEV - Deploy]"
           image: conexia/bitbucket-pipeline:latest
@@ -74,6 +87,12 @@ pipelines:
 
             # Update Kubernetes Deployment Image
             - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
+
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker   
 
     "{qa}":
       - step:
@@ -93,6 +112,12 @@ pipelines:
             # Push Image to AWS ECR
             - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
 
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker   
+
       - step:
           name: "[QA - Deploy]"
           image: conexia/bitbucket-pipeline:latest
@@ -109,6 +134,12 @@ pipelines:
 
             # Update Kubernetes Deployment Image
             - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
+
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker   
 
     "{homolog}":
       - step:
@@ -128,6 +159,12 @@ pipelines:
             # Push Image to AWS ECR
             - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
 
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker   
+
       - step:
           name: "[HML - Deploy]"
           image: conexia/bitbucket-pipeline:latest
@@ -144,6 +181,12 @@ pipelines:
 
             # Update Kubernetes Deployment Image
             - kubectl set image deployment/$SERVICE_NAME $SERVICE_NAME=$GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER -n $KUBERNETES_APP_NAMESPACE
+
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker   
 
     "{master}":
       - step:
@@ -162,6 +205,12 @@ pipelines:
 
             # Push Image to AWS ECR
             - docker push $GLOBAL_LEARNING_ECR_PATH$REPO_ECR_NAME:$BITBUCKET_BUILD_NUMBER
+
+            # Update Kubernetes Deployment annotation - tags.datadoghq.com/version
+            - wget  https://iac.lex.education/templates/dd_build_version.yaml && sed -i -r "s/BB_BUILD_VERSION/$BITBUCKET_BUILD_NUMBER/g" dd_build_version.yaml
+            - kubectl -n $KUBERNETES_APP_NAMESPACE patch deployment $SERVICE_NAME --patch "$(cat dd_build_version.yaml)"
+          services:
+            - docker   
 
       - step:
           name: "[PRD - Deploy]"
@@ -183,6 +232,8 @@ pipelines:
               variables:
                 WEBHOOK_URL: $WEBHOOK_URL
                 MESSAGE: "Deploy in Production.\n$BITBUCKET_REPO_SLUG ($BITBUCKET_PROJECT_KEY) on branch $BITBUCKET_BRANCH"
+          services:
+            - docker                   
 
 definitions:
   services:
