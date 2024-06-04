@@ -1,4 +1,4 @@
-FROM node:12.11.1-alpine AS builder
+FROM node:16.15-alpine3.14 AS builder
 ENV NEW_RELIC_NO_CONFIG_FILE=true
 # Create app directory
 EXPOSE 8000
